@@ -1,27 +1,59 @@
-import { useNavigate } from 'react-router-dom';
-import { Crown, Sparkles, ChevronRight } from 'lucide-react';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Crown,
+  Sparkles,
+  ChevronRight,
+  Lollipop,
+  Notebook,
+} from "lucide-react";
+import { getToken } from "@/api";
 
 const CategorySelectionPage = () => {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!getToken()) {
+      navigate("/");
+    }
+  }, [navigate]);
+
   const categories = [
     {
-      id: 'king-queen',
-      title: 'King & Queen',
-      subtitle: 'Senior Royalty',
-      description: 'Vote for Grade 12 candidates',
+      id: "king-queen",
+      title: "King & Queen",
+      subtitle: "Senior Royalty",
+      description: "Vote for king&queen",
       icon: Crown,
-      gradient: 'gradient-gold',
-      delay: '0ms',
+      gradient: "gradient-gold",
+      delay: "0ms",
     },
     {
-      id: 'prince-princess',
-      title: 'Prince & Princess',
-      subtitle: 'Junior Royalty',
-      description: 'Vote for Grade 10 candidates',
+      id: "prince-princess",
+      title: "Prince & Princess",
+      subtitle: "Junior Royalty",
+      description: "Vote for prince&princess",
       icon: Sparkles,
-      gradient: 'gradient-purple',
-      delay: '100ms',
+      gradient: "gradient-purple",
+      delay: "100ms",
+    },
+    {
+      id: "data",
+      title: "Check Data",
+      subtitle: "View the overview of votes",
+      description: "Check for winner(votes only)",
+      icon: Notebook,
+      gradient: "gradient-coral",
+      delay: "100ms",
+    },
+    {
+      id: "foodie",
+      title: "Foodie Cupon",
+      subtitle: "Pay with this QR Code",
+      description: "Go to the event shop and buy anything",
+      icon: Lollipop,
+      gradient: "gradient-teal",
+      delay: "100ms",
     },
   ];
 
@@ -39,26 +71,56 @@ const CategorySelectionPage = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-gold mb-4 shadow-glow">
             <Crown className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl font-bold text-foreground mb-2">Choose Your Vote</h1>
-          <p className="text-muted-foreground">Select a category to cast your ballot</p>
+          <h1 className="font-display text-3xl font-bold text-foreground mb-2">
+            Choose Your Vote
+          </h1>
+          <p className="text-muted-foreground">
+            Select a category to cast your ballot
+          </p>
+        </div>
+
+        <div
+          className="mb-5 text-center animate-fade-in"
+          style={{ animationDelay: "300ms" }}
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-sm text-muted-foreground">
+              Voting is open
+            </span>
+          </div>
         </div>
 
         {/* Category Cards */}
         <div className="space-y-4">
           {categories.map((category) => {
             const Icon = category.icon;
+            const handleClick = () => {
+              if (
+                category.id === "king-queen" ||
+                category.id === "prince-princess"
+              ) {
+                navigate(`/vote/${category.id}`);
+              } else if (category.id === "data") {
+                navigate("/data");
+              } else if (category.id === "foodie") {
+                navigate("/foodie");
+              }
+            };
             return (
               <button
                 key={category.id}
-                onClick={() => navigate(`/vote/${category.id}`)}
+                onClick={handleClick}
                 className="w-full animate-fade-in-up"
                 style={{ animationDelay: category.delay }}
               >
-                <div className={`${category.gradient} rounded-3xl p-6 shadow-card relative overflow-hidden group transition-transform duration-300 active:scale-[0.98]`}>
+                <div
+                  className={`${category.gradient} rounded-3xl p-6 shadow-card relative overflow-hidden group transition-transform duration-300 active:scale-[0.98]`}
+                >
                   {/* Decorative background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
                   <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-white/10 blur-xl" />
-                  
+
                   <div className="relative z-10 flex items-center gap-4">
                     {/* Icon */}
                     <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -87,14 +149,6 @@ const CategorySelectionPage = () => {
               </button>
             );
           })}
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-10 text-center animate-fade-in" style={{ animationDelay: '300ms' }}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm text-muted-foreground">Voting is open</span>
-          </div>
         </div>
       </div>
     </div>

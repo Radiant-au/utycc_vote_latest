@@ -1,35 +1,26 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Crown, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Crown, Sparkles } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import VotingPinInput from "@/components/VotingPinInput";
+import { useAuthContext } from "@/context/AuthContext";
 
 const LoginPage = () => {
-  const [pin, setPin] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthContext();
 
-  const handleLogin = async () => {
-    if (pin.length < 4) {
-      toast({
-        title: 'Invalid PIN',
-        description: 'Please enter a valid 4-digit PIN code.',
-        variant: 'destructive',
-      });
-      return;
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/categories");
     }
+  }, [isAuthenticated, navigate]);
 
-    setIsLoading(true);
-    // Simulate login delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setIsLoading(false);
-    
+  const handleSuccess = () => {
     toast({
-      title: 'Welcome!',
-      description: 'You have successfully logged in.',
+      title: "Welcome!",
+      description: "PIN verified. You can now vote.",
     });
-    navigate('/categories');
+    navigate("/categories");
   };
 
   return (
@@ -74,33 +65,7 @@ const LoginPage = () => {
           </div>
 
           <div className="space-y-4">
-            <Input
-              type="password"
-              inputMode="numeric"
-              maxLength={6}
-              placeholder="••••••"
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-              className="text-center text-2xl tracking-[0.5em] h-14 font-mono border-2 focus:border-primary focus:ring-primary"
-            />
-
-            <Button
-              onClick={handleLogin}
-              disabled={isLoading || pin.length < 4}
-              className="w-full h-14 text-lg font-semibold gradient-gold text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-glow disabled:opacity-50 disabled:shadow-none"
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  Verifying...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <Crown className="w-5 h-5" />
-                  Enter Ballot
-                </span>
-              )}
-            </Button>
+            <VotingPinInput onSuccess={handleSuccess} />
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">

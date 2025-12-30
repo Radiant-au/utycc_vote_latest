@@ -1,21 +1,35 @@
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
-import { ArrowLeft, Heart, Quote, GraduationCap } from 'lucide-react';
-import { getCandidateById } from '@/data/candidates';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
+import { useEffect, useMemo } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { ArrowLeft, GraduationCap, Quote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { getToken, Selection } from "@/api";
+import { useSelections } from "@/hooks/useSelections";
 
-import 'swiper/css';
-import 'swiper/css/pagination';
+import "swiper/css";
+import "swiper/css/pagination";
 
 const CandidateProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const category = searchParams.get('category');
+  const category = searchParams.get("category") as Selection["category"] | null;
 
-  const candidate = getCandidateById(id || '');
+  useEffect(() => {
+    if (!getToken()) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  const { data: selections } = useSelections();
+
+  const candidate = useMemo(() => {
+    const candidateId = id ? Number(id) : null;
+    if (!selections || !candidateId) return null;
+    return selections.find((s) => s.id === candidateId);
+  }, [id, selections]);
 
   if (!candidate) {
     return (
@@ -25,32 +39,30 @@ const CandidateProfilePage = () => {
     );
   }
 
+  const handleBack = () => {
+    if (category) {
+      navigate(`/vote/${category}`);
+      return;
+    }
+    navigate(-1);
+  };
+
   const handleVote = () => {
     toast({
-      title: 'Vote Recorded!',
-      description: `You voted for ${candidate.name}`,
+      title: "Go back to select",
+      description: "Please select candidates on the voting screen.",
     });
-    navigate(`/vote/${category}`);
+    handleBack();
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Photo Gallery */}
       <div className="relative">
-        <Swiper
-          modules={[Pagination]}
-          pagination={{ clickable: true }}
-          className="aspect-[3/4] max-h-[60vh]"
-        >
-          {candidate.photos.map((photo, index) => (
-            <SwiperSlide key={index}>
-              <img
-                src={photo}
-                alt={`${candidate.name} photo ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </SwiperSlide>
-          ))}
+        <Swiper modules={[Pagination]} pagination={{ clickable: true }} className="aspect-[3/4] max-h-[60vh]">
+          <SwiperSlide>
+            <img src={candidate.profileImg} alt={candidate.name} className="w-full h-full object-cover" />
+          </SwiperSlide>
         </Swiper>
 
         {/* Gradient Overlay */}
@@ -58,7 +70,7 @@ const CandidateProfilePage = () => {
 
         {/* Back Button */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="absolute top-4 left-4 z-20 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg"
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -66,7 +78,7 @@ const CandidateProfilePage = () => {
 
         {/* Photo Counter */}
         <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm">
-          <span className="text-xs font-medium text-foreground">{candidate.photos.length} Photos</span>
+          <span className="text-xs font-medium text-foreground">Profile</span>
         </div>
       </div>
 
@@ -76,23 +88,27 @@ const CandidateProfilePage = () => {
           {/* Name & Class */}
           <div className="text-center mb-6">
             <h1 className="font-display text-3xl font-bold text-foreground mb-2">{candidate.name}</h1>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
-              <GraduationCap className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">{candidate.class}</span>
-            </div>
+            {candidate.major && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
+                <GraduationCap className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">{candidate.major}</span>
+              </div>
+            )}
           </div>
 
           {/* Bio */}
-          <div className="relative bg-muted/50 rounded-2xl p-5">
-            <Quote className="absolute -top-3 -left-2 w-8 h-8 text-primary/20" />
-            <p className="text-foreground leading-relaxed italic">"{candidate.bio}"</p>
-          </div>
+          {candidate.description && (
+            <div className="relative bg-muted/50 rounded-2xl p-5">
+              <Quote className="absolute -top-3 -left-2 w-8 h-8 text-primary/20" />
+              <p className="text-foreground leading-relaxed italic">"{candidate.description}"</p>
+            </div>
+          )}
 
-          {/* Stats or badges could go here */}
+          {/* Badge */}
           <div className="mt-6 flex justify-center gap-3">
             <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <span className="text-sm font-medium text-primary">
-                {candidate.category === 'king-queen' ? 'Senior' : 'Junior'} Candidate
+                {candidate.category === "king-queen" ? "Senior" : "Junior"} Candidate
               </span>
             </div>
           </div>
@@ -106,8 +122,7 @@ const CandidateProfilePage = () => {
             onClick={handleVote}
             className="w-full h-14 text-lg font-bold gradient-gold text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-glow rounded-2xl"
           >
-            <Heart className="w-5 h-5 mr-2" />
-            Vote for {candidate.name.split(' ')[0]}
+            Back to selection
           </Button>
         </div>
       </div>
