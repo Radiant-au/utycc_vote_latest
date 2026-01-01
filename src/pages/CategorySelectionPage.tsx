@@ -8,9 +8,13 @@ import {
   Notebook,
 } from "lucide-react";
 import { getToken } from "@/api";
+import { useVotingStatus } from "@/hooks/useVotingStatus";
 
 const CategorySelectionPage = () => {
   const navigate = useNavigate();
+  const { data: votingStatus } = useVotingStatus();
+  console.log("Voting status:", votingStatus);
+  const isVotingOpen = votingStatus?.status === "OPEN";
 
   useEffect(() => {
     if (!getToken()) {
@@ -28,15 +32,15 @@ const CategorySelectionPage = () => {
       gradient: "gradient-gold",
       delay: "0ms",
     },
-    {
-      id: "prince-princess",
-      title: "Prince & Princess",
-      subtitle: "Junior Royalty",
-      description: "Vote for prince&princess",
-      icon: Sparkles,
-      gradient: "gradient-purple",
-      delay: "100ms",
-    },
+    // {
+    //   id: "prince-princess",
+    //   title: "Prince & Princess",
+    //   subtitle: "Junior Royalty",
+    //   description: "Vote for prince&princess",
+    //   icon: Sparkles,
+    //   gradient: "gradient-purple",
+    //   delay: "100ms",
+    // },
     {
       id: "data",
       title: "Check Data",
@@ -84,10 +88,14 @@ const CategorySelectionPage = () => {
           style={{ animationDelay: "300ms" }}
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm text-muted-foreground">
-              Voting is open
-            </span>
+            <div
+              className={`w-2 h-2 rounded-full ${
+                isVotingOpen ? "bg-green-500" : "bg-red-500"
+              } animate-pulse`}
+            />
+            <span className={`${isVotingOpen ? "text-green-500" : "text-red-500"} animate-pulse font-bold`}>
+              {isVotingOpen ? "Voting is open" : "Voting is Closed"}
+            </span> 
           </div>
         </div>
 

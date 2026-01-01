@@ -16,6 +16,10 @@ export type VoteResponse = {
   femaleName: string;
 };
 
+export type VotingStatus = {
+  status: 'OPEN' | 'CLOSED';
+};
+
 export type VoteStatus = {
   hasVotedSenior?: boolean;
   hasVotedJunior?: boolean;
@@ -60,6 +64,9 @@ export async function fetchVoteStatus(): Promise<VoteStatus> {
 //   if (!profileImg) return "/placeholder.svg";
 //   return `${API_URL}/${profileImg}`;
 // }
+export async function fetchVotingStatus(){
+  return apiFetch<VotingStatus>("/appStatus" , {method: "GET"})
+}
 
 export { getToken, setToken, clearToken, API_URL };
 

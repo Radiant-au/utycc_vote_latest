@@ -29,20 +29,6 @@ const votingData = {
     { name: "Ava Brown", votes: 145 },
     { name: "Mia Garcia", votes: 98 },
   ],
-  prince: [
-    { name: "James Wilson", votes: 189 },
-    { name: "Lucas Anderson", votes: 176 },
-    { name: "Mason Taylor", votes: 154 },
-    { name: "Noah Harris", votes: 132 },
-    { name: "Oliver Martin", votes: 104 },
-  ],
-  princess: [
-    { name: "Sophie Anderson", votes: 234 },
-    { name: "Charlotte Lee", votes: 201 },
-    { name: "Amelia Clark", votes: 167 },
-    { name: "Harper Lewis", votes: 143 },
-    { name: "Evelyn Walker", votes: 110 },
-  ],
 };
 
 // Mock winners data with placeholder images
@@ -56,16 +42,6 @@ const winners = {
     name: "Isabella Martinez",
     photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face",
     votes: 267,
-  },
-  prince: {
-    name: "James Wilson",
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face",
-    votes: 189,
-  },
-  princess: {
-    name: "Sophie Anderson",
-    photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face",
-    votes: 234,
   },
 };
 
@@ -104,8 +80,8 @@ const Data = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <VotedCandidateCard category="King" candidateName={userVotes.king} delay={0} />
             <VotedCandidateCard category="Queen" candidateName={userVotes.queen} delay={100} />
-            <VotedCandidateCard category="Prince" candidateName={userVotes.prince} delay={200} />
-            <VotedCandidateCard category="Princess" candidateName={userVotes.princess} delay={300} />
+            {/* <VotedCandidateCard category="Prince" candidateName={userVotes.prince} delay={200} />
+            <VotedCandidateCard category="Princess" candidateName={userVotes.princess} delay={300} /> */}
           </div>
         </section>
 
@@ -122,8 +98,8 @@ const Data = () => {
           <div className="grid grid-cols-2 gap-3 sm:gap-6">
             <CategoryPieChart category="King" data={votingData.king} delay={400} />
             <CategoryPieChart category="Queen" data={votingData.queen} delay={500} />
-            <CategoryPieChart category="Prince" data={votingData.prince} delay={600} />
-            <CategoryPieChart category="Princess" data={votingData.princess} delay={700} />
+            {/* <CategoryPieChart category="Prince" data={votingData.prince} delay={600} />
+            <CategoryPieChart category="Princess" data={votingData.princess} delay={700} /> */}
           </div>
         </section>
 
@@ -163,7 +139,7 @@ const Data = () => {
                 votes={winners.queen.votes}
                 delay={900}
               />
-              <WinnerCard 
+              {/* <WinnerCard 
                 category="Prince" 
                 name={winners.prince.name} 
                 photo={winners.prince.photo} 
@@ -176,7 +152,7 @@ const Data = () => {
                 photo={winners.princess.photo} 
                 votes={winners.princess.votes}
                 delay={1100}
-              />
+              /> */}
             </div>
           ) : (
             <div className="gradient-card rounded-2xl p-12 gold-shadow border border-gold-light/30 text-center">

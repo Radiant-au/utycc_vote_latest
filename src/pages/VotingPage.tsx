@@ -5,13 +5,14 @@ import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, Crown, Sparkles, Users } from "lucide-react";
 import CandidateCard from "@/components/CandidateCard";
-import { Selection, submitVote, getToken } from "@/api";
+import { Selection, submitVote, getToken, VotingStatus } from "@/api";
 import { useSelections } from "@/hooks/useSelections";
 import { useVoteStatus } from "@/hooks/useVoteStatus";
 import { toast } from "@/hooks/use-toast";
 
 import "swiper/css";
 import "swiper/css/pagination";
+import { useVotingStatus } from "@/hooks/useVotingStatus";
 
 const VotingPage = () => {
   const { category } = useParams<{ category: Selection["category"] }>();
@@ -29,6 +30,9 @@ const VotingPage = () => {
 
   const { data: selections, isLoading, isError } = useSelections();
   const { data: voteStatus } = useVoteStatus();
+  const { data: appStatus } = useVotingStatus();
+  const isVotingOpen = (appStatus as VotingStatus)?.status === "OPEN";
+
 
   const categoryTitle = category === "prince-princess" ? "Prince & Princess" : "King & Queen";
   const CategoryIcon = category === "prince-princess" ? Sparkles : Crown;
@@ -210,6 +214,7 @@ const VotingPage = () => {
           <button
             onClick={handleSubmit}
             disabled={
+              !isVotingOpen ||
               voteMutation.isPending ||
               alreadyVoted ||
               selectedMaleId == null ||
@@ -217,7 +222,9 @@ const VotingPage = () => {
             }
             className="w-full sm:w-auto px-6 py-3 rounded-2xl text-sm font-semibold gradient-gold text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
           >
-            {alreadyVoted
+            {!isVotingOpen
+              ? "Voting Not Open"
+              : alreadyVoted
               ? "Already Voted"
               : voteMutation.isPending
               ? "Submitting..."
