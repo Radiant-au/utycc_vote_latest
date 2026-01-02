@@ -5,14 +5,13 @@ import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, Crown, Sparkles, Users } from "lucide-react";
 import CandidateCard from "@/components/CandidateCard";
-import { Selection, submitVote, getToken, VotingStatus } from "@/api";
-import { useSelections } from "@/hooks/useSelections";
-import { useVoteStatus } from "@/hooks/useVoteStatus";
+import { Selection, submitVote, getToken, Status } from "@/api";
 import { toast } from "@/hooks/use-toast";
 
 import "swiper/css";
 import "swiper/css/pagination";
-import { useVotingStatus } from "@/hooks/useVotingStatus";
+import { usePinCodeStatus, useVotingStatus } from "@/hooks/useStatus";
+import { useSelections } from "@/hooks/useSelections";
 
 const VotingPage = () => {
   const { category } = useParams<{ category: Selection["category"] }>();
@@ -29,9 +28,9 @@ const VotingPage = () => {
   }, [navigate]);
 
   const { data: selections, isLoading, isError } = useSelections();
-  const { data: voteStatus } = useVoteStatus();
+  const { data: voteStatus } = usePinCodeStatus();
   const { data: appStatus } = useVotingStatus();
-  const isVotingOpen = (appStatus as VotingStatus)?.status === "OPEN";
+  const isVotingOpen = (appStatus as Status)?.status === "OPEN";
 
 
   const categoryTitle = category === "prince-princess" ? "Prince & Princess" : "King & Queen";

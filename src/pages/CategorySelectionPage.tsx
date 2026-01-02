@@ -3,22 +3,24 @@ import { useNavigate } from "react-router-dom";
 import {
   Crown,
   Sparkles,
+  LogOut,
   ChevronRight,
   Lollipop,
   Notebook,
 } from "lucide-react";
 import { getToken } from "@/api";
-import { useVotingStatus } from "@/hooks/useVotingStatus";
+import { useVotingStatus } from "@/hooks/useStatus";
+import { useAuthContext } from "@/context/AuthContext";
 
 const CategorySelectionPage = () => {
   const navigate = useNavigate();
   const { data: votingStatus } = useVotingStatus();
-  console.log("Voting status:", votingStatus);
+  const { logout } = useAuthContext();
   const isVotingOpen = votingStatus?.status === "OPEN";
 
   useEffect(() => {
     if (!getToken()) {
-      navigate("/");
+      navigate("/", { replace: true });
     }
   }, [navigate]);
 
@@ -44,8 +46,8 @@ const CategorySelectionPage = () => {
     {
       id: "data",
       title: "Check Data",
-      subtitle: "View the overview of votes",
-      description: "Check for winner(votes only)",
+      subtitle: "The overview of votes",
+      description: "Check for winner",
       icon: Notebook,
       gradient: "gradient-coral",
       delay: "100ms",
@@ -72,9 +74,25 @@ const CategorySelectionPage = () => {
       <div className="relative z-10 max-w-lg mx-auto">
         {/* Header */}
         <div className="text-center pt-8 pb-10 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-gold mb-4 shadow-glow">
-            <Crown className="w-8 h-8 text-primary-foreground" />
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between w-full items-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-gold shadow-glow">
+                <Crown className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <button
+                className="group relative px-6 py-3 rounded-lg font-medium text-slate-900 bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 hover:from-amber-300 hover:via-yellow-400 hover:to-amber-300 transition-all duration-300 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 flex items-center gap-2 overflow-hidden"
+                onClick={() => {
+                  logout();
+                  navigate("/", { replace: true });
+                }}
+              >
+                <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                <span>Logout</span>
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              </button>
+            </div>
           </div>
+
           <h1 className="font-display text-3xl font-bold text-foreground mb-2">
             Choose Your Vote
           </h1>
@@ -93,9 +111,13 @@ const CategorySelectionPage = () => {
                 isVotingOpen ? "bg-green-500" : "bg-red-500"
               } animate-pulse`}
             />
-            <span className={`${isVotingOpen ? "text-green-500" : "text-red-500"} animate-pulse font-bold`}>
+            <span
+              className={`${
+                isVotingOpen ? "text-green-500" : "text-red-500"
+              } animate-pulse font-bold`}
+            >
               {isVotingOpen ? "Voting is open" : "Voting is Closed"}
-            </span> 
+            </span>
           </div>
         </div>
 

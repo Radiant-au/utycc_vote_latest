@@ -25,7 +25,7 @@ const VotingPinInput = ({ onSuccess }: VotingPinInputProps) => {
     onError: () => {
       setHasError(true);
       toast({
-        title: "Invalid PIN",
+        title: "Invalid PpIN",
         description: "Please check your code and try again.",
         variant: "destructive",
       });

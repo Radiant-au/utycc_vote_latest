@@ -3,57 +3,75 @@ import { VotedCandidateCard } from "@/components/VotedCandidateCard";
 import { CategoryPieChart } from "@/components/CategoryPieChart";
 import { WinnerCard } from "@/components/WinnerCard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Lock, Unlock } from "lucide-react";
+import { ArrowLeft, Lock, Unlock, Loader2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// Mock data - replace with actual data from backend
-const userVotes = {
-  king: "Alexander Thompson",
-  queen: "Isabella Martinez",
-  prince: "James Wilson",
-  princess: "Sophie Anderson",
-};
-
-const votingData = {
-  king: [
-    { name: "Alexander Thompson", votes: 245 },
-    { name: "Benjamin Carter", votes: 198 },
-    { name: "Christopher Davis", votes: 156 },
-    { name: "Daniel Evans", votes: 134 },
-    { name: "Ethan Foster", votes: 112 },
-  ],
-  queen: [
-    { name: "Isabella Martinez", votes: 267 },
-    { name: "Olivia Johnson", votes: 212 },
-    { name: "Emma Williams", votes: 178 },
-    { name: "Ava Brown", votes: 145 },
-    { name: "Mia Garcia", votes: 98 },
-  ],
-};
-
-// Mock winners data with placeholder images
-const winners = {
-  king: {
-    name: "Alexander Thompson",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
-    votes: 245,
-  },
-  queen: {
-    name: "Isabella Martinez",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face",
-    votes: 267,
-  },
-};
-
-// Set to true when admin unlocks results
-const resultsUnlocked = false;
+import { useSeniorVoteCounts, useUserSVotes, useWinners } from "@/hooks/useVoteCounts";
+import { useWinnerStatus } from "@/hooks/useStatus";
+import { useEffect } from "react";
 
 const Data = () => {
   const navigate = useNavigate();
+  const { data: KQVotes, isLoading: isLoadingVotes, error: votesError } = useSeniorVoteCounts();
+  const { data: winnerStatus, isLoading: isLoadingStatus } = useWinnerStatus();
+  const { data: userVotes, isLoading: isLoadingUserVotes, error: userVotesError } = useUserSVotes();
+  const { data: winners, refetch: refetchWinners, isLoading: isLoadingWinners, error: winnersError } = useWinners();
+
+  const resultsUnlocked = winnerStatus?.status === 'OPEN';
+
+  // Fetch winners when unlocked
+  useEffect(() => {
+    if (resultsUnlocked) {
+      refetchWinners();
+    }
+  }, [resultsUnlocked, refetchWinners]);
 
   const handleBack = () => {
     navigate(-1);
   };
+
+  // Transform for pie charts
+  const votingData = {
+    king: KQVotes?.maleVotes.map(v => ({
+      name: v.selectionName,
+      votes: v.voteCount
+    })) || [],
+    queen: KQVotes?.femaleVotes.map(v => ({
+      name: v.selectionName,
+      votes: v.voteCount
+    })) || [],
+  };
+
+  // Loading state
+  if (isLoadingVotes || isLoadingStatus || isLoadingUserVotes) {
+    return (
+      <div className="min-h-screen gradient-hero flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-gold mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading results...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (votesError || userVotesError) {
+    return (
+      <div className="min-h-screen gradient-hero flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h2 className="font-display text-xl font-semibold text-foreground mb-2">
+            Failed to Load Results
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            {votesError?.message || userVotesError?.message || "Something went wrong. Please try again."}
+          </p>
+          <Button onClick={() => window.location.reload()} variant="default">
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -68,40 +86,93 @@ const Data = () => {
         <ResultsHeader />
 
         {/* Your Voted Candidates Section */}
-        <section className="mb-16">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
-            <h2 className="font-display text-2xl font-semibold text-foreground">
-              Your Voted Candidates
-            </h2>
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
-          </div>
-          
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <VotedCandidateCard category="King" candidateName={userVotes.king} delay={0} />
-            <VotedCandidateCard category="Queen" candidateName={userVotes.queen} delay={100} />
-            {/* <VotedCandidateCard category="Prince" candidateName={userVotes.prince} delay={200} />
-            <VotedCandidateCard category="Princess" candidateName={userVotes.princess} delay={300} /> */}
-          </div>
-        </section>
+        {userVotes && (userVotes.maleName || userVotes.femaleName) && (
+          <section className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
+              <h2 className="font-display text-2xl font-semibold text-foreground">
+                Your Voted Candidates
+              </h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {userVotes.maleName && (
+                <VotedCandidateCard
+                  category="King"
+                  candidateName={userVotes.maleName}
+                  delay={0}
+                />
+              )}
+              {userVotes.femaleName && (
+                <VotedCandidateCard
+                  category="Queen"
+                  candidateName={userVotes.femaleName}
+                  delay={100}
+                />
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* No votes yet message */}
+        {userVotes && !userVotes.maleName && !userVotes.femaleName && (
+          <section className="mb-16">
+            <div className="gradient-card rounded-2xl p-8 gold-shadow border border-gold-light/30 text-center">
+              <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-display text-lg font-semibold text-foreground mb-2">
+                No Votes Yet
+              </h3>
+              <p className="text-muted-foreground">
+                You haven't cast your vote yet. Go to the voting page to select your candidates.
+              </p>
+              <Button 
+                onClick={() => navigate('/vote')} 
+                className="mt-4"
+                variant="default"
+              >
+                Vote Now
+              </Button>
+            </div>
+          </section>
+        )}
 
         {/* Pie Charts Section */}
-        <section className="mb-16">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
-            <h2 className="font-display text-2xl font-semibold text-foreground">
-              Voting Distribution
-            </h2>
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 sm:gap-6">
-            <CategoryPieChart category="King" data={votingData.king} delay={400} />
-            <CategoryPieChart category="Queen" data={votingData.queen} delay={500} />
-            {/* <CategoryPieChart category="Prince" data={votingData.prince} delay={600} />
-            <CategoryPieChart category="Princess" data={votingData.princess} delay={700} /> */}
-          </div>
-        </section>
+        {KQVotes && (votingData.king.length > 0 || votingData.queen.length > 0) && (
+          <section className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
+              <h2 className="font-display text-2xl font-semibold text-foreground">
+                Voting Distribution
+              </h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:gap-6">
+              {votingData.king.length > 0 && (
+                <CategoryPieChart category="King" data={votingData.king} delay={400} />
+              )}
+              {votingData.queen.length > 0 && (
+                <CategoryPieChart category="Queen" data={votingData.queen} delay={500} />
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* No voting data yet */}
+        {KQVotes && votingData.king.length === 0 && votingData.queen.length === 0 && (
+          <section className="mb-16">
+            <div className="gradient-card rounded-2xl p-8 gold-shadow border border-gold-light/30 text-center">
+              <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-display text-lg font-semibold text-foreground mb-2">
+                No Votes Recorded Yet
+              </h3>
+              <p className="text-muted-foreground">
+                Voting data will appear here once votes start coming in.
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* Winners Section */}
         <section>
@@ -124,36 +195,41 @@ const Data = () => {
           </div>
 
           {resultsUnlocked ? (
-            <div className="grid grid-cols-2 gap-3 sm:gap-6">
-              <WinnerCard 
-                category="King" 
-                name={winners.king.name} 
-                photo={winners.king.photo} 
-                votes={winners.king.votes}
-                delay={800}
-              />
-              <WinnerCard 
-                category="Queen" 
-                name={winners.queen.name} 
-                photo={winners.queen.photo} 
-                votes={winners.queen.votes}
-                delay={900}
-              />
-              {/* <WinnerCard 
-                category="Prince" 
-                name={winners.prince.name} 
-                photo={winners.prince.photo} 
-                votes={winners.prince.votes}
-                delay={1000}
-              />
-              <WinnerCard 
-                category="Princess" 
-                name={winners.princess.name} 
-                photo={winners.princess.photo} 
-                votes={winners.princess.votes}
-                delay={1100}
-              /> */}
-            </div>
+            <>
+              {isLoadingWinners ? (
+                <div className="gradient-card rounded-2xl p-12 gold-shadow border border-gold-light/30 text-center">
+                  <Loader2 className="w-12 h-12 animate-spin text-gold mx-auto mb-4" />
+                  <p className="text-muted-foreground">Loading winners...</p>
+                </div>
+              ) : winnersError ? (
+                <div className="gradient-card rounded-2xl p-12 gold-shadow border border-gold-light/30 text-center">
+                  <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+                  <p className="text-muted-foreground">Failed to load winners. Please try again.</p>
+                </div>
+              ) : winners?.maleWinner && winners?.femaleWinner ? (
+                <div className="grid grid-cols-2 gap-3 sm:gap-6">
+                  <WinnerCard
+                    category="King"
+                    name={winners.maleWinner.selectionName}
+                    photo={winners.maleWinner.profileImg || '/default-avatar.jpg'}
+                    votes={winners.maleWinner.voteCount}
+                    delay={800}
+                  />
+                  <WinnerCard
+                    category="Queen"
+                    name={winners.femaleWinner.selectionName}
+                    photo={winners.femaleWinner.profileImg || '/default-avatar.jpg'}
+                    votes={winners.femaleWinner.voteCount}
+                    delay={900}
+                  />
+                </div>
+              ) : (
+                <div className="gradient-card rounded-2xl p-12 gold-shadow border border-gold-light/30 text-center">
+                  <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No winners data available yet.</p>
+                </div>
+              )}
+            </>
           ) : (
             <div className="gradient-card rounded-2xl p-12 gold-shadow border border-gold-light/30 text-center">
               <Lock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />

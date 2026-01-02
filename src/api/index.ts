@@ -10,20 +10,49 @@ export type Selection = {
   description?: string | null;
 };
 
+export interface VoteCount {
+  selectionId: number;
+  selectionName: string;
+  voteCount: number;
+}
+
+export interface VoteCountsResponse {
+  maleVotes: VoteCount[];
+  femaleVotes: VoteCount[];
+}
+
+export interface UserVotesResponse {
+  pinCode: string;
+  maleName: string;
+  femaleName: string;
+}
+
 export type VoteResponse = {
   pinCode: string;
   maleName: string;
   femaleName: string;
 };
 
-export type VotingStatus = {
+export type Status = {
   status: 'OPEN' | 'CLOSED';
 };
 
-export type VoteStatus = {
+export type PinCodeStatus = {
   hasVotedSenior?: boolean;
   hasVotedJunior?: boolean;
 };
+
+export interface Winner{
+    selectionId: number;
+    selectionName: string;
+    voteCount: number;
+    profileImg: string;
+}
+
+export interface GetWinners{
+    maleWinner: Winner;
+    femaleWinner: Winner;
+}
 
 export async function loginWithPin(pincode: string) {
   const result = await apiFetch<{ token: string }>("/auth/Plogin", {
@@ -56,17 +85,37 @@ export async function submitVote(
   });
 }
 
-export async function fetchVoteStatus(): Promise<VoteStatus> {
+export async function fetchPinCodeStatus(): Promise<PinCodeStatus> {
   // Adjust the endpoint/shape if your backend differs
-  return apiFetch<VoteStatus>("/pinCode/status", { method: "GET" });
+  return apiFetch<PinCodeStatus>("/pinCode/status", { method: "GET" });
 }
 // export function buildImageUrl(profileImg?: string | null) {
 //   if (!profileImg) return "/placeholder.svg";
 //   return `${API_URL}/${profileImg}`;
 // }
 export async function fetchVotingStatus(){
-  return apiFetch<VotingStatus>("/appStatus" , {method: "GET"})
+  return apiFetch<Status>("/appStatus/app" , {method: "GET"})
 }
+
+export async function fetchWinnerStatus(){
+  return apiFetch<Status>("/appStatus/winner" , {method: "GET"})
+}
+
+// Fetch vote counts for Senior category (King & Queen)
+export const fetchSeniorVoteCounts = async (): Promise<VoteCountsResponse> => {
+  const response = await apiFetch<VoteCountsResponse>('/vote/senior/pin');
+  return response;
+};
+
+export const fetchWinner = async (): Promise<GetWinners> => {
+  const response = await apiFetch<GetWinners>('/vote/kqwinner');
+  return response;
+};
+
+export const fetchUserVotes = async (): Promise<Partial<VoteResponse>> => {
+  const response = await apiFetch<Partial<VoteResponse>>('/vote/user');
+  return response;
+};
 
 export { getToken, setToken, clearToken, API_URL };
 

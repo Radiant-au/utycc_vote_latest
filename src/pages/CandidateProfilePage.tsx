@@ -40,19 +40,12 @@ const CandidateProfilePage = () => {
   }
 
   const handleBack = () => {
+    console.log("Back button clicked", { id, category, candidate });
     if (category) {
       navigate(`/vote/${category}`);
       return;
     }
     navigate(-1);
-  };
-
-  const handleVote = () => {
-    toast({
-      title: "Go back to select",
-      description: "Please select candidates on the voting screen.",
-    });
-    handleBack();
   };
 
   return (
@@ -103,27 +96,6 @@ const CandidateProfilePage = () => {
               <p className="text-foreground leading-relaxed italic">"{candidate.description}"</p>
             </div>
           )}
-
-          {/* Badge */}
-          <div className="mt-6 flex justify-center gap-3">
-            <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-sm font-medium text-primary">
-                {candidate.category === "king-queen" ? "Senior" : "Junior"} Candidate
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Fixed Vote Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent">
-        <div className="max-w-lg mx-auto">
-          <Button
-            onClick={handleVote}
-            className="w-full h-14 text-lg font-bold gradient-gold text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-glow rounded-2xl"
-          >
-            Back to selection
-          </Button>
         </div>
       </div>
     </div>

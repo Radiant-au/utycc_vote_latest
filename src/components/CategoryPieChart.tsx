@@ -1,4 +1,5 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { AlertCircle } from "lucide-react";
 
 interface CandidateData {
   name: string;
@@ -32,7 +33,48 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export const CategoryPieChart = ({ category, data, delay = 0 }: CategoryPieChartProps) => {
+  // Handle empty data
+  if (!data || data.length === 0) {
+    return (
+      <div 
+        className="gradient-card rounded-xl sm:rounded-2xl p-3 sm:p-6 gold-shadow border border-gold-light/30 opacity-0 animate-fade-in"
+        style={{ animationDelay: `${delay}ms` }}
+      >
+        <h3 className="font-display text-sm sm:text-xl font-semibold text-center mb-2 sm:mb-4 text-foreground">
+          {category}
+        </h3>
+        <div className="h-32 sm:h-64 flex items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-xs sm:text-sm text-muted-foreground">No data yet</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const total = data.reduce((sum, item) => sum + item.votes, 0);
+  
+  // Handle case where total is 0
+  if (total === 0) {
+    return (
+      <div 
+        className="gradient-card rounded-xl sm:rounded-2xl p-3 sm:p-6 gold-shadow border border-gold-light/30 opacity-0 animate-fade-in"
+        style={{ animationDelay: `${delay}ms` }}
+      >
+        <h3 className="font-display text-sm sm:text-xl font-semibold text-center mb-2 sm:mb-4 text-foreground">
+          {category}
+        </h3>
+        <div className="h-32 sm:h-64 flex items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-xs sm:text-sm text-muted-foreground">No votes yet</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const dataWithPercentage = data.map(item => ({
     ...item,
     percentage: ((item.votes / total) * 100).toFixed(1)
@@ -71,7 +113,7 @@ export const CategoryPieChart = ({ category, data, delay = 0 }: CategoryPieChart
           </PieChart>
         </ResponsiveContainer>
       </div>
-      {/* Legend below chart for mobile */}
+      {/* Legend below chart */}
       <div className="flex flex-wrap justify-center gap-1 sm:gap-2 mt-2 sm:mt-4">
         {dataWithPercentage.map((item, index) => (
           <div key={index} className="flex items-center gap-1">
