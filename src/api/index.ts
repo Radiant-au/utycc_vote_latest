@@ -60,7 +60,6 @@ export async function loginWithPin(pincode: string) {
     body: JSON.stringify({ Rcode: pincode }),
     skipAuth: true,
   });
-  setToken(result.token);
   return result;
 }
 
@@ -103,17 +102,17 @@ export async function fetchWinnerStatus(){
 
 // Fetch vote counts for Senior category (King & Queen)
 export const fetchSeniorVoteCounts = async (): Promise<VoteCountsResponse> => {
-  const response = await apiFetch<VoteCountsResponse>('/vote/senior/pin');
+  const response = await apiFetch<VoteCountsResponse>('/vote/senior/pin' , {method: "GET"});
   return response;
 };
 
 export const fetchWinner = async (): Promise<GetWinners> => {
-  const response = await apiFetch<GetWinners>('/vote/kqwinner');
+  const response = await apiFetch<GetWinners>('/vote/kqwinner' , {method: "GET"});
   return response;
 };
 
 export const fetchUserVotes = async (): Promise<Partial<VoteResponse>> => {
-  const response = await apiFetch<Partial<VoteResponse>>('/vote/user');
+  const response = await apiFetch<Partial<VoteResponse>>('/vote/user' , {method: "GET"});
   return response;
 };
 

@@ -20,7 +20,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (pin: string) => {
     const { token: newToken } = await loginWithPin(pin);
-    persistToken(newToken);
     setToken(newToken);
   };
 
