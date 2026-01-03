@@ -3,8 +3,6 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, GraduationCap, Quote } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 import { getToken, Selection } from "@/api";
 import { useSelections } from "@/hooks/useSelections";
 
@@ -31,6 +29,16 @@ const CandidateProfilePage = () => {
     return selections.find((s) => s.id === candidateId);
   }, [id, selections]);
 
+  // Combine profile image with additional images
+  const allImages = useMemo(() => {
+    if (!candidate) return [];
+    const images = [candidate.profileImg];
+    if (candidate.images && candidate.images.length > 0) {
+      images.push(...candidate.images);
+    }
+    return images.filter(Boolean) as string[];
+  }, [candidate]);
+
   if (!candidate) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -52,10 +60,21 @@ const CandidateProfilePage = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Photo Gallery */}
       <div className="relative">
-        <Swiper modules={[Pagination]} pagination={{ clickable: true }} className="aspect-[3/4] max-h-[60vh]">
-          <SwiperSlide>
-            <img src={candidate.profileImg} alt={candidate.name} className="w-full h-full object-cover" />
-          </SwiperSlide>
+        <Swiper 
+          modules={[Pagination]} 
+          pagination={{ clickable: true }} 
+          className="aspect-[3/4] max-h-[60vh]"
+          loop={allImages.length > 1}
+        >
+          {allImages.map((imageUrl, index) => (
+            <SwiperSlide key={index}>
+              <img 
+                src={imageUrl} 
+                alt={`${candidate.name} - Photo ${index + 1}`} 
+                className="w-full h-full object-cover" 
+              />
+            </SwiperSlide>
+          ))}
         </Swiper>
 
         {/* Gradient Overlay */}
@@ -71,7 +90,9 @@ const CandidateProfilePage = () => {
 
         {/* Photo Counter */}
         <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm">
-          <span className="text-xs font-medium text-foreground">Profile</span>
+          <span className="text-xs font-medium text-foreground">
+            {allImages.length > 1 ? `${allImages.length} Photos` : 'Profile'}
+          </span>
         </div>
       </div>
 

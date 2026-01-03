@@ -8,6 +8,7 @@ export type Selection = {
   profileImg?: string | null;
   major?: string | null;
   description?: string | null;
+  images?: string[];
 };
 
 export interface VoteCount {
