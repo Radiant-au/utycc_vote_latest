@@ -44,15 +44,29 @@ export type PinCodeStatus = {
 };
 
 export interface Winner{
-    selectionId: number;
-    selectionName: string;
-    voteCount: number;
-    profileImg: string;
+   selectionId: number;
+   selectionName: string;
+   voteCount: number;
+   teacher_score: number;
+   commitee_score: number;
+   profileImg: string;
 }
 
+export interface VoteWinner{
+   selectionId: number;
+   selectionName: string;
+   voteCount: number;
+   profileImg: string;
+}
+
+
 export interface GetWinners{
-    maleWinner: Winner;
-    femaleWinner: Winner;
+   King: Winner;
+   Queen: Winner;
+   Prince: Winner;
+   Princess: Winner;
+   PopularMale: VoteWinner;
+   PopularFemale: VoteWinner;
 }
 
 export async function loginWithPin(pincode: string) {
@@ -108,7 +122,7 @@ export const fetchSeniorVoteCounts = async (): Promise<VoteCountsResponse> => {
 };
 
 export const fetchWinner = async (): Promise<GetWinners> => {
-  const response = await apiFetch<GetWinners>('/vote/kqwinner' , {method: "GET"});
+  const response = await apiFetch<GetWinners>('/vote' , {method: "GET"});
   return response;
 };
 
