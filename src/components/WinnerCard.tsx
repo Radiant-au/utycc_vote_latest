@@ -1,18 +1,29 @@
 import { Trophy, Star } from "lucide-react";
 
 interface WinnerCardProps {
-  category: "King" | "Queen" | "Prince" | "Princess";
+  category: "King" | "Queen" | "Prince" | "Princess" | "PopularMale" | "PopularFemale";
   name: string;
   photo: string;
   votes: number;
   delay?: number;
 }
 
-const categoryEmoji = {
+const categoryEmoji: Record<WinnerCardProps["category"], string> = {
   King: "👑",
   Queen: "👸",
   Prince: "🤴",
   Princess: "👑",
+  PopularMale: "🌟",
+  PopularFemale: "⭐",
+};
+
+const categoryLabel: Record<WinnerCardProps["category"], string> = {
+  King: "King",
+  Queen: "Queen",
+  Prince: "Prince",
+  Princess: "Princess",
+  PopularMale: "Popular King",
+  PopularFemale: "Popular Queen",
 };
 
 export const WinnerCard = ({ category, name, photo, votes, delay = 0 }: WinnerCardProps) => {
@@ -30,7 +41,7 @@ export const WinnerCard = ({ category, name, photo, votes, delay = 0 }: WinnerCa
         <div className="flex items-center justify-center gap-1 bg-gold/20 backdrop-blur-sm px-2 py-1 sm:px-3 rounded-full mb-3 sm:mb-4 w-fit mx-auto">
           <span className="text-sm sm:text-lg">{categoryEmoji[category]}</span>
           <span className="text-[10px] sm:text-xs font-semibold text-gold-dark uppercase tracking-wider">
-            {category}
+            {categoryLabel[category]}
           </span>
         </div>
 

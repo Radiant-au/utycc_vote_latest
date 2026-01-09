@@ -43,30 +43,29 @@ export type PinCodeStatus = {
   hasVotedJunior?: boolean;
 };
 
-export interface Winner{
-   selectionId: number;
-   selectionName: string;
-   voteCount: number;
-   teacher_score: number;
-   commitee_score: number;
-   profileImg: string;
+export interface Winner {
+  selectionId: number;
+  selectionName: string;
+  voteCount: number;
+  teacher_score: number;
+  commitee_score: number;
+  profileImg: string;
 }
 
-export interface VoteWinner{
-   selectionId: number;
-   selectionName: string;
-   voteCount: number;
-   profileImg: string;
+export interface VoteWinner {
+  selectionId: number;
+  selectionName: string;
+  voteCount: number;
+  profileImg: string;
 }
 
-
-export interface GetWinners{
-   King: Winner;
-   Queen: Winner;
-   Prince: Winner;
-   Princess: Winner;
-   PopularMale: VoteWinner;
-   PopularFemale: VoteWinner;
+export interface GetWinners {
+  King: Winner;
+  Queen: Winner;
+  Prince: Winner;
+  Princess: Winner;
+  PopularMale: VoteWinner;
+  PopularFemale: VoteWinner;
 }
 
 export async function loginWithPin(pincode: string) {
