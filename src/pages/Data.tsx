@@ -206,23 +206,73 @@ const Data = () => {
                   <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
                   <p className="text-muted-foreground">Failed to load winners. Please try again.</p>
                 </div>
-              ) : winners?.maleWinner && winners?.femaleWinner ? (
-                <div className="grid grid-cols-2 gap-3 sm:gap-6">
-                  <WinnerCard
-                    category="King"
-                    name={winners.maleWinner.selectionName}
-                    photo={winners.maleWinner.profileImg || '/default-avatar.jpg'}
-                    votes={winners.maleWinner.voteCount}
-                    delay={800}
-                  />
-                  <WinnerCard
-                    category="Queen"
-                    name={winners.femaleWinner.selectionName}
-                    photo={winners.femaleWinner.profileImg || '/default-avatar.jpg'}
-                    votes={winners.femaleWinner.voteCount}
-                    delay={900}
-                  />
-                </div>
+              ) : winners?.King && winners?.Queen ? (
+                <>
+                  {/* Main Winners - King, Queen, Prince, Princess */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
+                    <WinnerCard
+                      category="King"
+                      name={winners.King.selectionName}
+                      photo={winners.King.profileImg || '/default-avatar.jpg'}
+                      votes={winners.King.voteCount}
+                      delay={800}
+                    />
+                    <WinnerCard
+                      category="Queen"
+                      name={winners.Queen.selectionName}
+                      photo={winners.Queen.profileImg || '/default-avatar.jpg'}
+                      votes={winners.Queen.voteCount}
+                      delay={900}
+                    />
+                    <WinnerCard
+                      category="Prince"
+                      name={winners.Prince.selectionName}
+                      photo={winners.Prince.profileImg || '/default-avatar.jpg'}
+                      votes={winners.Prince.voteCount}
+                      delay={1000}
+                    />
+                    <WinnerCard
+                      category="Princess"
+                      name={winners.Princess.selectionName}
+                      photo={winners.Princess.profileImg || '/default-avatar.jpg'}
+                      votes={winners.Princess.voteCount}
+                      delay={1100}
+                    />
+                  </div>
+
+                  {/* Popular Vote Winners */}
+                  {(winners.PopularMale || winners.PopularFemale) && (
+                    <>
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
+                        <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                          🌟 Student Vote Winners 🌟
+                        </h3>
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-light to-transparent" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 sm:gap-6 max-w-2xl mx-auto">
+                        {winners.PopularMale && (
+                          <WinnerCard
+                            category="PopularMale"
+                            name={winners.PopularMale.selectionName}
+                            photo={winners.PopularMale.profileImg || '/default-avatar.jpg'}
+                            votes={winners.PopularMale.voteCount}
+                            delay={1200}
+                          />
+                        )}
+                        {winners.PopularFemale && (
+                          <WinnerCard
+                            category="PopularFemale"
+                            name={winners.PopularFemale.selectionName}
+                            photo={winners.PopularFemale.profileImg || '/default-avatar.jpg'}
+                            votes={winners.PopularFemale.voteCount}
+                            delay={1300}
+                          />
+                        )}
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
                 <div className="gradient-card rounded-2xl p-12 gold-shadow border border-gold-light/30 text-center">
                   <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
