@@ -5,6 +5,8 @@ interface WinnerCardProps {
   name: string;
   photo: string;
   votes: number;
+  teacher_score?: number;
+  commitee_score?: number;
   delay?: number;
 }
 
@@ -26,7 +28,7 @@ const categoryLabel: Record<WinnerCardProps["category"], string> = {
   PopularFemale: "Popular Queen",
 };
 
-export const WinnerCard = ({ category, name, photo, votes, delay = 0 }: WinnerCardProps) => {
+export const WinnerCard = ({ category, name, photo, votes, teacher_score, commitee_score, delay = 0 }: WinnerCardProps) => {
   return (
     <div 
       className="relative overflow-hidden rounded-xl sm:rounded-2xl gold-shadow border border-gold-light/30 bg-card hover:gold-glow transition-all duration-500 hover:-translate-y-1 group opacity-0 animate-scale-in"
@@ -72,11 +74,19 @@ export const WinnerCard = ({ category, name, photo, votes, delay = 0 }: WinnerCa
           <Star className="w-3 h-3 sm:w-4 sm:h-4 text-gold fill-gold" />
         </div>
 
-        {/* Votes count - responsive */}
-        <div className="text-center">
-          <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-2 py-1 sm:px-4 sm:py-2 rounded-full">
-            <span className="text-[10px] sm:text-sm text-muted-foreground hidden sm:inline">Votes:</span>
+        {/* Votes count - responsive and stacked on mobile */}
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-2 justify-center items-center">
+          <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">  
+            <span className="text-[10px] sm:text-sm text-muted-foreground">Votes:</span>
             <span className="text-xs sm:text-base font-bold text-gold">{votes}</span>
+          </span>
+          <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
+            <span className="text-[10px] sm:text-sm text-muted-foreground">Teacher:</span>
+            <span className="text-xs sm:text-base font-bold text-gold">{teacher_score}/100</span>
+          </span>
+          <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
+            <span className="text-[10px] sm:text-sm text-muted-foreground">Committee:</span>
+            <span className="text-xs sm:text-base font-bold text-gold">{commitee_score}/10</span>
           </span>
         </div>
       </div>

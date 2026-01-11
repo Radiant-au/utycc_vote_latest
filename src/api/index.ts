@@ -121,7 +121,7 @@ export const fetchSeniorVoteCounts = async (): Promise<VoteCountsResponse> => {
 };
 
 export const fetchWinner = async (): Promise<GetWinners> => {
-  const response = await apiFetch<GetWinners>('/vote' , {method: "GET"});
+  const response = await apiFetch<GetWinners>('/winner/final' , {method: "GET"});
   return response;
 };
 

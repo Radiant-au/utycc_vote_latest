@@ -127,7 +127,7 @@ const Data = () => {
                 You haven't cast your vote yet. Go to the voting page to select your candidates.
               </p>
               <Button 
-                onClick={() => navigate('/vote')} 
+                onClick={() => navigate('/vote/king-queen')} 
                 className="mt-4"
                 variant="default"
               >
@@ -215,6 +215,8 @@ const Data = () => {
                       name={winners.King.selectionName}
                       photo={winners.King.profileImg || '/default-avatar.jpg'}
                       votes={winners.King.voteCount}
+                      teacher_score={winners.King.teacher_score}
+                      commitee_score={winners.King.commitee_score}
                       delay={800}
                     />
                     <WinnerCard
@@ -222,6 +224,8 @@ const Data = () => {
                       name={winners.Queen.selectionName}
                       photo={winners.Queen.profileImg || '/default-avatar.jpg'}
                       votes={winners.Queen.voteCount}
+                      teacher_score={winners.Queen.teacher_score}
+                      commitee_score={winners.Queen.commitee_score}
                       delay={900}
                     />
                     <WinnerCard
@@ -229,6 +233,8 @@ const Data = () => {
                       name={winners.Prince.selectionName}
                       photo={winners.Prince.profileImg || '/default-avatar.jpg'}
                       votes={winners.Prince.voteCount}
+                      teacher_score={winners.Prince.teacher_score}
+                      commitee_score={winners.Prince.commitee_score}
                       delay={1000}
                     />
                     <WinnerCard
@@ -236,6 +242,8 @@ const Data = () => {
                       name={winners.Princess.selectionName}
                       photo={winners.Princess.profileImg || '/default-avatar.jpg'}
                       votes={winners.Princess.voteCount}
+                      teacher_score={winners.Princess.teacher_score}
+                      commitee_score={winners.Princess.commitee_score}
                       delay={1100}
                     />
                   </div>

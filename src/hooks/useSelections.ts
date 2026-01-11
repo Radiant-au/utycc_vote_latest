@@ -5,6 +5,6 @@ export const useSelections = () =>
   useQuery({
     queryKey: ["selections"],
     queryFn: fetchSelections,
-    staleTime: 60 * 60 * 1000,
+    staleTime: Infinity,
   });
 

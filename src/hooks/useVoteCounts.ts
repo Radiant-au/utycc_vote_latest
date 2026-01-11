@@ -23,5 +23,6 @@ export const useUserSVotes = () => {
   return useQuery<Partial<VoteResponse>>({
     queryKey: ['userSeniorVotes'],
     queryFn: fetchUserVotes,
+    staleTime: Infinity
   });
 };
