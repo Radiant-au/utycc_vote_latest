@@ -80,14 +80,18 @@ export const WinnerCard = ({ category, name, photo, votes, teacher_score, commit
             <span className="text-[10px] sm:text-sm text-muted-foreground">Votes:</span>
             <span className="text-xs sm:text-base font-bold text-gold">{votes}</span>
           </span>
-          <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
-            <span className="text-[10px] sm:text-sm text-muted-foreground">Teacher:</span>
-            <span className="text-xs sm:text-base font-bold text-gold">{teacher_score}/100</span>
-          </span>
-          <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
-            <span className="text-[10px] sm:text-sm text-muted-foreground">Committee:</span>
-            <span className="text-xs sm:text-base font-bold text-gold">{commitee_score}/10</span>
-          </span>
+          {teacher_score && (
+            <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
+              <span className="text-[10px] sm:text-sm text-muted-foreground">Teacher:</span>
+              <span className="text-xs sm:text-base font-bold text-gold">{teacher_score} %</span>
+            </span>
+          )}
+          {commitee_score && (
+            <span className="inline-flex items-center gap-1 sm:gap-2 bg-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
+              <span className="text-[10px] sm:text-sm text-muted-foreground">Committee:</span>
+              <span className="text-xs sm:text-base font-bold text-gold">{commitee_score} %</span>
+            </span>
+          )}
         </div>
       </div>
     </div>

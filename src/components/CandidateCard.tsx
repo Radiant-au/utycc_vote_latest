@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Heart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {  Selection } from "@/api";
+import { Selection } from "@/api";
+import { optimizeCloudinaryImage } from "@/lib/imageOptimizer";
 
 interface CandidateCardProps {
   candidate: Selection;
@@ -13,6 +15,11 @@ interface CandidateCardProps {
 
 const CandidateCard = ({ candidate, category, onSelect, isSelected, isDisabled }: CandidateCardProps) => {
   const navigate = useNavigate();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // ✅ OPTIMIZE IMAGE: 400px width for cards
+  const optimizedImage = optimizeCloudinaryImage(candidate.profileImg, 400, 'auto');
 
   const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -31,8 +38,35 @@ const CandidateCard = ({ candidate, category, onSelect, isSelected, isDisabled }
       }`}
     >
       {/* Photo */}
-      <div className="relative aspect-[4/5] overflow-hidden">
-        <img src={candidate.profileImg} alt={candidate.name} className="w-full h-full object-cover" />
+      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+        {/* ✅ LOADING SKELETON */}
+        {!imageLoaded && !imageError && (
+          <div className="absolute inset-0 bg-muted animate-pulse" />
+        )}
+
+        {/* ✅ OPTIMIZED IMAGE with lazy loading */}
+        <img
+          src={optimizedImage}
+          alt={candidate.name}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            setImageError(true);
+            setImageLoaded(true);
+          }}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            imageLoaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        {/* ✅ ERROR FALLBACK */}
+        {imageError && (
+          <div className="absolute inset-0 bg-muted flex items-center justify-center">
+            <span className="text-muted-foreground text-sm">No image</span>
+          </div>
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
         {/* Name overlay */}
@@ -61,7 +95,10 @@ const CandidateCard = ({ candidate, category, onSelect, isSelected, isDisabled }
         {onSelect && (
           <Button
             onClick={handleSelect}
-            className={`w-full h-11 text-sm font-semibold ${isSelected ? "gradient-green" : "gradient-gold"} text-primary-foreground hover:opacity-90 transition-opacity`}
+            disabled={isDisabled}
+            className={`w-full h-11 text-sm font-semibold ${
+              isSelected ? "gradient-green" : "gradient-gold"
+            } text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50`}
           >
             <Heart className="w-4 h-4 mr-2" />
             {isSelected ? "Selected" : "Select"}

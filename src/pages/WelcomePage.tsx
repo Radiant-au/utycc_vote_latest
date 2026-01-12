@@ -12,22 +12,22 @@ const couples = [
   {
     id: 2,
     title: "Computer Engineering",
-    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904060/TZP06717_kevdty.jpg",
+    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904058/TZP06672_bmrq6z.jpg",
   },
   {
     id: 3,
     title: "Electronic Engineering",
-    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904060/TZP06706_et23cp.jpg",
+    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904059/TZP06688_zihg3k.jpg",
   },
   {
     id: 4,
     title: "Precision Engineering",
-    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904059/TZP06688_zihg3k.jpg",
+    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904060/TZP06706_et23cp.jpg",
   },
   {
     id: 5,
     title: "Advanced Material Engineering",
-    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904058/TZP06672_bmrq6z.jpg",
+    image: "https://res.cloudinary.com/dw7kk0lvp/image/upload/w_800,q_auto,f_auto/v1767904060/TZP06717_kevdty.jpg",
   },
 ];
 

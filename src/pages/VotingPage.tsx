@@ -20,7 +20,6 @@ const VotingPage = () => {
   const [selectedMaleId, setSelectedMaleId] = useState<number | null>(null);
   const [selectedFemaleId, setSelectedFemaleId] = useState<number | null>(null);
 
-
   useEffect(() => {
     if (!getToken()) {
       navigate("/");
@@ -32,17 +31,24 @@ const VotingPage = () => {
   const { data: appStatus } = useVotingStatus();
   const isVotingOpen = (appStatus as Status)?.status === "OPEN";
 
-
   const categoryTitle = category === "prince-princess" ? "Prince & Princess" : "King & Queen";
   const CategoryIcon = category === "prince-princess" ? Sparkles : Crown;
 
+  // ✅ MEMOIZE CANDIDATES - prevents re-filtering on every render
   const candidates = useMemo(() => {
     if (!selections || !category) return [];
     return selections.filter((c) => c.category === category);
   }, [selections, category]);
 
-  const maleCandidates = candidates.filter((c) => c.gender === "male");
-  const femaleCandidates = candidates.filter((c) => c.gender === "female");
+  const maleCandidates = useMemo(
+    () => candidates.filter((c) => c.gender === "male"),
+    [candidates]
+  );
+  
+  const femaleCandidates = useMemo(
+    () => candidates.filter((c) => c.gender === "female"),
+    [candidates]
+  );
 
   const alreadyVoted = useMemo(() => {
     if (!voteStatus || !category) return false;
@@ -164,16 +170,15 @@ const VotingPage = () => {
           <SwiperSlide>
             <div className="h-full overflow-y-auto px-4 pb-8">
               <div className="grid grid-cols-2 gap-4 pt-4">
-                {maleCandidates.map((candidate, index) => (
-                  <div key={candidate.id} style={{ animationDelay: `${index * 100}ms` }}>
-                    <CandidateCard
-                      candidate={candidate}
-                      category={category}
-                      onSelect={(c) => setSelectedMaleId(c.id)}
-                      isSelected={selectedMaleId === candidate.id}
-                      isDisabled={selectedMaleId !== null && selectedMaleId !== candidate.id}
-                    />
-                  </div>
+                {maleCandidates.map((candidate) => (
+                  <CandidateCard
+                    key={candidate.id}
+                    candidate={candidate}
+                    category={category}
+                    onSelect={(c) => setSelectedMaleId(c.id)}
+                    isSelected={selectedMaleId === candidate.id}
+                    isDisabled={selectedMaleId !== null && selectedMaleId !== candidate.id}
+                  />
                 ))}
               </div>
             </div>
@@ -183,16 +188,15 @@ const VotingPage = () => {
           <SwiperSlide>
             <div className="h-full overflow-y-auto px-4 pb-8">
               <div className="grid grid-cols-2 gap-4 pt-4">
-                {femaleCandidates.map((candidate, index) => (
-                  <div key={candidate.id} style={{ animationDelay: `${index * 100}ms` }}>
-                    <CandidateCard
-                      candidate={candidate}
-                      category={category}
-                      onSelect={(c) => setSelectedFemaleId(c.id)}
-                      isSelected={selectedFemaleId === candidate.id}
-                      isDisabled={selectedFemaleId !== null && selectedFemaleId !== candidate.id}
-                    />
-                  </div>
+                {femaleCandidates.map((candidate) => (
+                  <CandidateCard
+                    key={candidate.id}
+                    candidate={candidate}
+                    category={category}
+                    onSelect={(c) => setSelectedFemaleId(c.id)}
+                    isSelected={selectedFemaleId === candidate.id}
+                    isDisabled={selectedFemaleId !== null && selectedFemaleId !== candidate.id}
+                  />
                 ))}
               </div>
             </div>
