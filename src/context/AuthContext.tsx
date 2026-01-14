@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { loginWithPin, getToken as loadToken, setToken as persistToken, clearToken as removeToken } from "@/api";
+import { clearUserPinCode, setUserPinCode } from "@/api/client";
 
 type AuthContextValue = {
   token: string | null;
@@ -22,11 +23,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { token: newToken } = await loginWithPin(pin);
     setToken(newToken);
     persistToken(newToken);
+    if (newToken) {
+      setUserPinCode(pin);
+    }
   };
 
   const logout = () => {
     removeToken();
     setToken(null);
+    clearUserPinCode();
   };
 
   const value = useMemo(
@@ -49,4 +54,5 @@ export const useAuthContext = (): AuthContextValue => {
   }
   return ctx;
 };
+
 

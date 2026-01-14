@@ -2,7 +2,10 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const getToken = () => localStorage.getItem("token");
 export const setToken = (token: string) => localStorage.setItem("token", token);
+export const getUserPinCode = () => localStorage.getItem("userPinCode");
+export const setUserPinCode = (pinCode: string) => localStorage.setItem("userPinCode", pinCode);
 export const clearToken = () => localStorage.removeItem("token");
+export const clearUserPinCode = () => localStorage.removeItem("userPinCode");
 
 // console.log("API URL:", API_URL);
 
@@ -25,6 +28,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   // Automatic logout + redirect when token expired or missing
   if (response.status === 401) {
     clearToken();
+    clearUserPinCode();
     window.location.href = "/";
     return Promise.reject("Unauthorized");
   }

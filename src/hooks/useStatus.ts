@@ -22,5 +22,5 @@ export const usePinCodeStatus = () =>
   useQuery<PinCodeStatus>({
     queryKey: ["pinCodeStatus"],
     queryFn: fetchPinCodeStatus,
-    staleTime: 60 * 1000,
+    refetchOnWindowFocus: true,
 });

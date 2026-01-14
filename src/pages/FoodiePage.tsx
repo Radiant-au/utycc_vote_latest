@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Loader2, UtensilsCrossed, AlertCircle } from "lucide-react";
+import { Loader2, UtensilsCrossed, AlertCircle, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const QR_API_URL = import.meta.env.VITE_QR_API_URL || "https://qr.com";
 
@@ -10,12 +12,15 @@ interface CouponResponse {
   data: {
     token: string;
     pinCode: string;
+    status: "used" | "unused";
   };
 }
 
 const FoodiePage = () => {
+  const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(null);
   const [pinCode, setPinCode] = useState<string | null>(null);
+  const [status, setStatus] = useState<"used" | "unused">("unused");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,15 +29,15 @@ const FoodiePage = () => {
       try {
         // Get pinCode from localStorage (set during login)
         const storedPinCode = localStorage.getItem("userPinCode");
-        
+
         if (!storedPinCode) {
           setError("No pin code found. Please login first.");
           setLoading(false);
           return;
         }
 
-        const response = await fetch(`${QR_API_URL}/${storedPinCode}`);
-        
+        const response = await fetch(`${QR_API_URL}/coupon/${storedPinCode}`);
+
         if (!response.ok) {
           throw new Error("Failed to generate coupon");
         }
@@ -40,6 +45,7 @@ const FoodiePage = () => {
         const data: CouponResponse = await response.json();
         setToken(data.data.token);
         setPinCode(data.data.pinCode);
+        setStatus(data.data.status);
       } catch (err) {
         console.error("Error fetching coupon:", err);
         setError(err instanceof Error ? err.message : "Failed to load coupon");
@@ -85,10 +91,39 @@ const FoodiePage = () => {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">Foodie Coupon</CardTitle>
-          <p className="text-white/80 text-sm mt-1">Show this QR at the food stall</p>
+          <p className="text-white/80 text-sm mt-1">
+            Show this QR at the food stall
+          </p>
         </CardHeader>
-        
+
         <CardContent className="p-6 space-y-6">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/categories")}
+            className="text-orange-700 hover:text-orange-800 hover:bg-orange-100"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div className="flex justify-center">
+            <div
+              className={`inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 ${
+                status === "unused"
+                  ? "bg-green-50 border-green-500 text-green-700"
+                  : "bg-red-50 border-red-500 text-red-700"
+              }`}
+            >
+              <div
+                className={`w-2 h-2 rounded-full animate-pulse ${
+                  status === "unused" ? "bg-green-500" : "bg-red-500"
+                }`}
+              />
+              <span className="font-bold text-sm uppercase tracking-wide">
+                {status}
+              </span>
+            </div>
+          </div>
           {/* QR Code */}
           <div className="flex justify-center">
             <div className="p-4 bg-white rounded-2xl shadow-inner border-2 border-orange-100">
@@ -97,7 +132,6 @@ const FoodiePage = () => {
                   value={token}
                   size={200}
                   level="H"
-                  includeMargin={false}
                   bgColor="#ffffff"
                   fgColor="#1a1a1a"
                 />
@@ -117,7 +151,9 @@ const FoodiePage = () => {
 
           {/* Instructions */}
           <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-            <h4 className="font-semibold text-amber-800 text-sm mb-2">How to use:</h4>
+            <h4 className="font-semibold text-amber-800 text-sm mb-2">
+              How to use:
+            </h4>
             <ol className="text-xs text-amber-700 space-y-1 list-decimal list-inside">
               <li>Show this QR code at the food stall</li>
               <li>Wait for verification</li>
