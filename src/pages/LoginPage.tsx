@@ -1,80 +1,171 @@
-import { useEffect } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import { Loader2, UtensilsCrossed, AlertCircle, ArrowLeft } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Crown, Sparkles } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import VotingPinInput from "@/components/VotingPinInput";
-import { useAuthContext } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
 
-const LoginPage = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuthContext();
+const QR_API_URL = import.meta.env.VITE_QR_API_URL || "https://qr.com";
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/categories");
-    }
-  }, [isAuthenticated, navigate]);
-
-  const handleSuccess = () => {
-    toast({
-      title: "Welcome!",
-      description: "PIN verified. You can now vote.",
-    });
-    navigate("/categories");
+interface CouponResponse {
+  message: string;
+  data: {
+    token: string;
+    pinCode: string;
+    status: "used" | "unused";
   };
+}
+
+const FoodiePage = () => {
+  const navigate = useNavigate();
+  const storedPinCode = localStorage.getItem("userPinCode");
+
+  const {
+    data: couponData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["coupon", storedPinCode],
+    queryFn: async () => {
+      if (!storedPinCode) {
+        throw new Error("No pin code found. Please login first.");
+      }
+
+      const response = await fetch(`${QR_API_URL}/coupon/${storedPinCode}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to generate coupon");
+      }
+
+      return (await response.json()) as CouponResponse;
+    },
+    enabled: !!storedPinCode,
+    staleTime: Infinity,
+    refetchOnWindowFocus: true,
+    retry: 2,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 animate-spin text-orange-500 mx-auto" />
+          <p className="text-muted-foreground">Loading your coupon...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4">
+        <Card className="max-w-sm w-full border-destructive/50">
+          <CardContent className="pt-6 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
+            <p className="text-destructive font-medium">
+              {error instanceof Error ? error.message : "Failed to load coupon"}
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/login")}
+              className="mt-4"
+            >
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { token, pinCode, status } = couponData?.data || {};
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-primary/10 blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-40 h-40 rounded-full bg-secondary/10 blur-3xl animate-float" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full bg-accent/10 blur-2xl animate-float" style={{ animationDelay: '2s' }} />
-      </div>
-
-      {/* Login Card */}
-      <div className="w-full max-w-sm animate-fade-in-up">
-        {/* Ticket Header */}
-        <div className="gradient-gold rounded-t-3xl p-6 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
-          <div className="relative z-10">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-card/20 backdrop-blur-sm mb-4">
-              <Crown className="w-8 h-8 text-primary-foreground" />
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4 flex items-center justify-center">
+      <Card className="max-w-sm w-full shadow-xl border-orange-200/50 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-center pb-6">
+          <div className="flex justify-center mb-3">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <UtensilsCrossed className="w-8 h-8" />
             </div>
-            <h1 className="font-display text-2xl font-bold text-primary-foreground">Royal Vote</h1>
-            <p className="text-primary-foreground/80 text-sm mt-1">School Election 2024</p>
           </div>
-          
-          {/* Decorative sparkles */}
-          <Sparkles className="absolute top-4 right-4 w-5 h-5 text-primary-foreground/50 animate-pulse" />
-          <Sparkles className="absolute bottom-4 left-4 w-4 h-4 text-primary-foreground/50 animate-pulse" style={{ animationDelay: '0.5s' }} />
-        </div>
-
-        {/* Ticket Perforations */}
-        <div className="relative h-4 bg-card">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-background rounded-full" />
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-8 h-8 bg-background rounded-full" />
-          <div className="absolute inset-x-8 top-1/2 border-t-2 border-dashed border-muted" />
-        </div>
-
-        {/* Ticket Body */}
-        <div className="bg-card rounded-b-3xl p-6 shadow-card">
-          <div className="text-center mb-6">
-            <h2 className="font-display text-xl font-semibold text-foreground mb-2">Enter Your PIN</h2>
-            <p className="text-muted-foreground text-sm">Use your unique voting access code</p>
-          </div>
-
-          <div className="space-y-4">
-            <VotingPinInput onSuccess={handleSuccess} />
-          </div>
-
-          <p className="text-center text-xs text-muted-foreground mt-6">
-            Your vote is private and secure
+          <CardTitle className="text-2xl font-bold">Foodie Coupon</CardTitle>
+          <p className="text-white/80 text-sm mt-1">
+            Show this QR at the food stall
           </p>
-        </div>
-      </div>
+        </CardHeader>
+
+        <CardContent className="p-6 space-y-6">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/categories")}
+            className="text-orange-700 hover:text-orange-800 hover:bg-orange-100"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+
+          {/* Status Badge */}
+          <div className="flex justify-center">
+            <div
+              className={`inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 ${
+                status === "unused"
+                  ? "bg-green-50 border-green-500 text-green-700"
+                  : "bg-red-50 border-red-500 text-red-700"
+              }`}
+            >
+              <div
+                className={`w-2 h-2 rounded-full animate-pulse ${
+                  status === "unused" ? "bg-green-500" : "bg-red-500"
+                }`}
+              />
+              <span className="font-bold text-sm uppercase tracking-wide">
+                {status}
+              </span>
+            </div>
+          </div>
+
+          {/* QR Code */}
+          <div className="flex justify-center">
+            <div className="p-4 bg-white rounded-2xl shadow-inner border-2 border-orange-100">
+              {token && (
+                <QRCodeSVG
+                  value={token}
+                  size={200}
+                  level="H"
+                  bgColor="#ffffff"
+                  fgColor="#1a1a1a"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Pin Code Display */}
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground">Your Pin Code</p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full">
+              <span className="font-mono font-bold text-lg text-orange-700 tracking-widest">
+                {pinCode}
+              </span>
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+            <h4 className="font-semibold text-amber-800 text-sm mb-2">
+              How to use:
+            </h4>
+            <ol className="text-xs text-amber-700 space-y-1 list-decimal list-inside">
+              <li>Show this QR code at the food stall</li>
+              <li>Wait for verification</li>
+              <li>Enjoy your meal! 🍽️</li>
+            </ol>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default LoginPage;
+export default FoodiePage;

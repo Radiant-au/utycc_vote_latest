@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Loader2, UtensilsCrossed, AlertCircle, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 const QR_API_URL = import.meta.env.VITE_QR_API_URL || "https://qr.com";
 
@@ -18,46 +18,34 @@ interface CouponResponse {
 
 const FoodiePage = () => {
   const navigate = useNavigate();
-  const [token, setToken] = useState<string | null>(null);
-  const [pinCode, setPinCode] = useState<string | null>(null);
-  const [status, setStatus] = useState<"used" | "unused">("unused");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const storedPinCode = localStorage.getItem("userPinCode");
 
-  useEffect(() => {
-    const fetchCoupon = async () => {
-      try {
-        // Get pinCode from localStorage (set during login)
-        const storedPinCode = localStorage.getItem("userPinCode");
-
-        if (!storedPinCode) {
-          setError("No pin code found. Please login first.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(`${QR_API_URL}/coupon/${storedPinCode}`);
-
-        if (!response.ok) {
-          throw new Error("Failed to generate coupon");
-        }
-
-        const data: CouponResponse = await response.json();
-        setToken(data.data.token);
-        setPinCode(data.data.pinCode);
-        setStatus(data.data.status);
-      } catch (err) {
-        console.error("Error fetching coupon:", err);
-        setError(err instanceof Error ? err.message : "Failed to load coupon");
-      } finally {
-        setLoading(false);
+  const {
+    data: couponData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["coupon", storedPinCode],
+    queryFn: async () => {
+      if (!storedPinCode) {
+        throw new Error("No pin code found. Please login first.");
       }
-    };
 
-    fetchCoupon();
-  }, []);
+      const response = await fetch(`${QR_API_URL}/coupon/${storedPinCode}`);
 
-  if (loading) {
+      if (!response.ok) {
+        throw new Error("Failed to generate coupon");
+      }
+
+      return (await response.json()) as CouponResponse;
+    },
+    enabled: !!storedPinCode,
+    staleTime: Infinity,
+    refetchOnWindowFocus: true,
+    retry: 2,
+  });
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
         <div className="text-center space-y-4">
@@ -74,12 +62,23 @@ const FoodiePage = () => {
         <Card className="max-w-sm w-full border-destructive/50">
           <CardContent className="pt-6 text-center space-y-4">
             <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
-            <p className="text-destructive font-medium">{error}</p>
+            <p className="text-destructive font-medium">
+              {error instanceof Error ? error.message : "Failed to load coupon"}
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/login")}
+              className="mt-4"
+            >
+              Go to Login
+            </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
+
+  const { token, pinCode, status } = couponData?.data || {};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4 flex items-center justify-center">
@@ -106,6 +105,8 @@ const FoodiePage = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
+
+          {/* Status Badge */}
           <div className="flex justify-center">
             <div
               className={`inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 ${
@@ -124,6 +125,7 @@ const FoodiePage = () => {
               </span>
             </div>
           </div>
+
           {/* QR Code */}
           <div className="flex justify-center">
             <div className="p-4 bg-white rounded-2xl shadow-inner border-2 border-orange-100">
